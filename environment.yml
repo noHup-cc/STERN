@@ -1,0 +1,21 @@
+# Current libraries (features agree with the paper's to floating-point / JPEG-codec level; see README).
+name: stern
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - torch>=2.1,<2.9          # CUDA 12 builds; newer PyPI builds need a CUDA 13 driver
+      - torchvision>=0.16,<0.24
+      - timm>=0.9
+      - numpy
+      - pillow
+      - scikit-learn
+      - scipy
+      - opencv-python-headless
+      - tifffile
+      - safetensors
+      - imageio
+      - pytest
+      - -e .

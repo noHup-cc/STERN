@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stern"
+version = "1.0.0"
+description = "STERN (Spatio-Temporal Embedding for Real-time morphogeNesis): slice features and volume matching"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.7"
+authors = [
+    {name = "Jiawei Wang"},
+    {name = "Jinzheng Ren"},
+    {name = "Cora Moore"},
+    {name = "Robert N. Kelsh"},
+    {name = "Katie McDole"},
+    {name = "Bianca Dumitrascu"},
+    {name = "John C. Marioni"},
+]
+dependencies = [
+    "numpy>=1.19",
+    "scikit-learn>=0.24",
+]
+
+[project.urls]
+Homepage = "https://github.com/noHup-cc/STERN"
+Issues = "https://github.com/noHup-cc/STERN/issues"
+
+[project.optional-dependencies]
+# feature extraction with the network
+model = [
+    "torch>=1.8",
+    "torchvision>=0.9",
+    "timm>=0.6.13",
+    "pillow>=5.4",
+    "safetensors>=0.3",
+    "opencv-python-headless>=4.5",
+    "tifffile>=2021.7",
+]
+klb = ["pyklb"]
+test = ["pytest>=6", "scipy>=1.5", "imageio>=2.9"]
+
+[project.scripts]
+stern = "stern.cli:main"
+
+[tool.setuptools]
+packages = ["stern"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

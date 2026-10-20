@@ -1,0 +1,10 @@
+{
+  "source": "Fig. 2c (best target time of embryo D query volumes at t = 0, 100, 250) and Fig. 3h (Spearman rho of the best matches of zebrafish view 1 (zf_G1) to view 2 (zf_G2)); identical to the records of the original analysis",
+  "fig2c_best_target_time": {
+    "A": {"0": 118, "100": 215, "250": 361},
+    "B": {"0": 47, "100": 136, "250": 248},
+    "C": {"0": 74, "100": 170, "250": 332},
+    "D": {"0": 0, "100": 100, "250": 250}
+  },
+  "fig3h_spearman_rho": 0.988
+}
