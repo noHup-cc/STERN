@@ -175,6 +175,68 @@ slice goes straight to resizing and the network. How this affects matching has n
 the default unless you have a reason not to, and compare only features computed the same way (the
 released features were computed with the JPEG step).
 
+### Example: a mouse heart volume from its raw images
+
+The mouse heart images of Yue et al. (2020) are on Figshare as one archive (0.7 GB) with one TIFF stack
+per time point. The commands below take the stack of heart A at time point 115, compute its features and
+match it against the released features of every time point of heart A (115-134):
+
+```bash
+# one TIFF stack from the archive: heart A, time point 115
+curl -L -o Preprocessed_Datasets.zip https://ndownloader.figshare.com/files/21189321
+unzip -j Preprocessed_Datasets.zip '*DataSetsA/115.tif' -d heart_A_raw
+
+# its features: heart_A_115/000115.npz
+stern extract heart_A_raw/115.tif --recipe heart --first-time 115 \
+    --weights stern_weights.safetensors --out heart_A_115/
+
+# the released features of heart A, and the match
+curl -L -o features_heart_A.zip "https://zenodo.org/records/23503600/files/features_heart_A.zip?download=1"
+unzip -q features_heart_A.zip -d released
+stern match heart_A_115/ released/heart_A/ --query-ranges heart:A --target-ranges heart:A \
+    --out heart_A_115.csv --best heart_A_115_best.csv
+```
+
+The best match is time point 115 itself, and `heart_A_115.csv` lists the distance to every time point.
+The computed features equal the released `released/heart_A/000115.npz` (bit-identical in the paper
+environment, within about 0.2 % otherwise). For your own recordings, replace the stack with your files and
+choose the recipe as described above.
+
+## Command-line options
+
+`stern extract` writes one feature file per time point (`<out>/000115.npz` for time point 115) and
+`stern match` compares two folders of such files. `stern extract --help` and `stern match --help` list the
+same options.
+
+**`stern extract INPUT ... --weights FILE --out FOLDER`**
+
+| option | meaning |
+|---|---|
+| `INPUT ...` | one volume per time point, in time order: TIFF / OME-TIFF stack, KLB file, `.npy` array or folder of slice images; or one TIFF with a time axis together with `--time-series` |
+| `--weights` | the network weights, `stern_weights.safetensors` |
+| `--out` | output folder |
+| `--recipe` | `mouse` (default), `heart` or `zebrafish`: how a slice becomes an 8-bit image (table above) |
+| `--time-series` | the input is one (OME-)TIFF with a time axis; one feature file per time point |
+| `--times` | time points of a time series, e.g. `0-108`, `0,50,100` or `0-108:10` (every 10th); default: all |
+| `--first-time` | time point of the first input when there is one file per time point (default 0); the next files get the following numbers |
+| `--channel` | channel of a multi-channel TIFF (default 0) |
+| `--no-jpeg` | leave out the in-memory JPEG step (see "The JPEG step") |
+| `--device` | `cuda` or `cpu` (default: `cuda` when a GPU is available) |
+| `--batch-size` | slices per forward pass (default 1, as in the paper; larger batches are faster and change the features only at the level of floating-point rounding) |
+| `--overwrite` | recompute time points whose feature file exists (by default they are skipped) |
+
+**`stern match QUERY TARGET --out FILE`**
+
+| option | meaning |
+|---|---|
+| `QUERY`, `TARGET` | folders of feature files (from `stern extract`, or the released features); every query time point is compared with every target time point |
+| `--out` | CSV of all distances, one row per pair: `queryEmbryo, query_time, targetEmbryo, target_time, distance` |
+| `--best` | CSV of the best match of each query time point: `query_time, best_target_time, distance` |
+| `--query-times`, `--target-times` | time points to compare, e.g. `0,100,250`, `0-265` or `0-265:5`; default: all time points (with `mouse:` ranges, those that have a range) |
+| `--query-ranges`, `--target-ranges` | slices used for the distance, as first and last slice (counted from 1, both included): `all` (default), a fixed range such as `20-120`, or the paper's ranges `mouse:A` ... `mouse:D` (one range per time point) and `heart:A` ... `heart:C` (one fixed range); see "Slice ranges" |
+| `--lower` | only the pairs with target time <= query time (comparing a recording with itself) |
+| `--query-name`, `--target-name` | names in the `queryEmbryo` / `targetEmbryo` columns (default: the folder names) |
+
 ## How the paper's features were computed
 
 In the paper, every slice was converted to 8 bit with the recipe of its dataset (table above), saved as a
