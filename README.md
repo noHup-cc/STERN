@@ -126,6 +126,10 @@ Feature extraction needs the network weights (`stern_weights.safetensors` from t
 makes it much faster but is not required.
 
 ```bash
+# download the network weights (about 0.9 GB)
+curl -L -o stern_weights.safetensors \
+    "https://zenodo.org/records/23503600/files/stern_weights.safetensors?download=1"
+
 # a 4D OME-TIFF (time series): one feature file per time point
 stern extract recording.ome.tif --time-series --recipe zebrafish \
     --weights stern_weights.safetensors --out my_features/
